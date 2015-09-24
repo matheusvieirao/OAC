@@ -1,0 +1,40 @@
+MIPS de 1GHz
+J-type -> 1 ciclo
+R-type -> 2 ciclos
+I-type -> 3 ciclos
+FR/FI-type -> 4 ciclos
+
+d.1) 	R-type: 1
+	I-type: 6
+	J-type: 1
+	FR/FI-type: 16
+	R(1) = 3.1415925
+	R(2) = -3.1415925
+	
+d.2)	R-type: 1
+	I-type: 6
+	J-type: 1
+	FR/FI-type: 16
+	R(1) = 0
+	R(2) = 0
+
+d.3)	R-type: 1
+	I-type: 5
+	J-type: 1
+	FR/FI-type: 14
+	R(1) = -49.5 + 2.95804 i
+	R(2) = -49.5 - 2.95804 i
+
+d.4)	R-type: 1
+	I-type: 5
+	J-type: 1
+	FR/FI-type: 14
+	R(1) = 1234.0 + 5678.0 i
+	R(2) = 1234.0 - 5678.0 i
+
+d.5)	R-type: 1
+	I-type: 5
+	J-type: 0
+	FR/FI-type: 5
+	R(1) = 0
+	R(2) = -10

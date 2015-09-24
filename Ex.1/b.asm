@@ -25,7 +25,7 @@ SHOW_C:	lwc1 $f1, 0($sp) #pega Re(x)
 	syscall #printa "R(1) = "				
 	
 	addi $v0, $zero, 2 #coloca 2 em v0
-	mov.s $f12, $f0 #coloca Re(x) em f12
+	mov.s $f12, $f1 #coloca Re(x) em f12
 	syscall #printa Re(x)
 	
 	addi $v0, $zero, 4
@@ -48,7 +48,7 @@ SHOW_C:	lwc1 $f1, 0($sp) #pega Re(x)
 	syscall #printa "R(2) = "				
 	
 	addi $v0, $zero, 2 #coloca 2 em v0
-	mov.s $f12, $f0 #coloca Re(x) em f12
+	mov.s $f12, $f1 #coloca Re(x) em f12
 	syscall #printa Re(x)
 	
 	addi $v0, $zero, 4
