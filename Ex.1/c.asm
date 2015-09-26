@@ -46,17 +46,14 @@ READ_B: li $v0, 6
 READ_C: li $v0, 6
 	syscall
 
-MOVER:	li $t0, 4
-	li $t1, 2
+MOVER:	li $t0, 2
 	mtc1 $t0, $f3
-	mtc1 $t1, $f4
 	cvt.s.w $f3, $f3 
-	cvt.s.w $f4, $f4 
 	mfc1 $a0, $f10 #move para regs de args
 	mfc1 $a1, $f11
 	mfc1 $a2, $f0	
-	mul.s $f3, $f3, $f10
-	mul.s $f4, $f4, $f10
+	mul.s $f4, $f3, $f10 # f4 = 2A
+	mul.s $f3, $f3, $f4 # f3 = 2*2A
 
 CALLER:	jal BASKARA
 	jal SHOW
@@ -106,8 +103,8 @@ R_ROOT: sqrt.s $f3, $f3 #sqrt(delta)
 	add.s $f11, $f10, $f3 #-b+sqrt(delta)
 	div.s $f11, $f11, $f4 #-b+sqrt(delta)/2a, #f11 tem x1
 	sub.s $f12, $f10, $f3 #-b-sqrt(delta)
-	div.s $f12, $f12, $f4 #-b-sqrt(delta)/2a, #f12 tem x1
-	swc1 $f12, 4($sp)	#salva x2
+	div.s $f12, $f12, $f4 #-b-sqrt(delta)/2a, #f12 tem x2
+	swc1 $f12, 4($sp) #salva x2
 	swc1 $f11, 0($sp) #salva x1	
 	jr $ra #retorna
 
