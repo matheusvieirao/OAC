@@ -4,11 +4,11 @@
 
 .text
 MAIN: 
-	li $a0, -10
+	li $a0, -1
 	li $a1, -1
-	li $a2, -2
-	li $a3, -1
-	jal DIVL
+	li $a2, 5
+	li $a3, 0
+	jal MULTL
 	jal EXIT
 	jal MULTL
 	jal ADDL0
@@ -44,7 +44,26 @@ SUBL2:	nor $t2, $a2, $a2	#Complemento de 1 em Ylo
  	jr $ra
 
 # {HI,LO,$v1,$v0}=x*y
-MULTL:	mul $t0, $a0, $a2 # t0 = LSB(a*b)
+MULTL:	add $t9, $zero, $zero	 #t9 sera a flag de condicoes. se 0  X>=0 e Y>=0,  se 1  X<0,  se 2  Y<0, se 3  X<0 e Y<0, 
+
+	bgez $a1, XPOS 		# pula se X Positivo ou 0 (so precisa olhar os bits mais significativos)
+	addi $t9, $t9, 1
+	nor $a1, $a1, $a1	#inverte o numerador para ele ficar positivo 
+	bnez $a0, XPOSOV	#verifica se pode dar overflow no complemento de 2
+	addiu $a1, $a1, 1	#se ocorrer soma 1 bit no mais significativo
+XPOSOV:	nor $a0, $a0, $a0	#Complemento de 1 em LO
+	addi $a0, $a0, 1	#Complemento de 2 em LO
+XPOS:	bgez  $a3, YPOS		# pula se Y Positivo ou igual 0
+	addi $t9, $t9, 2
+	nor $a3, $a3, $a3	#inverte o denominador para ele ficar positivo
+	bnez $a2, YPOSOV
+	addiu $a3, $a3, 1
+YPOSOV: nor $a2, $a2, $a2
+	addi $a2, $a2, 1
+YPOS:	
+	#aqui X e Y ja estao positivos
+
+	mul $t0, $a0, $a2 # t0 = LSB(a*b)
 	mfhi $t1	# t1 MSB(a*b)	
 	mul $t2, $a0, $a3 # t2 = LSB(a*B)
 	mfhi $t3	# t3 = MSB(a*B)
@@ -55,13 +74,13 @@ MULTL:	mul $t0, $a0, $a2 # t0 = LSB(a*b)
 	
 	addu $v0, $t0, $zero	# registra o v0
 	addu $t0, $zero, $zero 	#zera o t0 para o usar como contador de overflow
-	move $t9, $ra		#guarda a volta
 	
-	addi $sp, $sp, -16
+	addi $sp, $sp, -20
 	sw $s0, 0($sp)		#salva os $s para os utilizar na operacao ADDOVF
 	sw $s1, 4($sp)
 	sw $s2, 8($sp)
 	sw $s5, 12($sp)
+	sw $ra, 16($sp)
 	
 	move $s0, $t1
 	move $s1, $t4
@@ -99,13 +118,30 @@ NOOVFL5:move $s0, $t8
 NOOVFL6:addu $t7, $t7, $t0
 	mthi $t7
 	
+	#inverte hilov1v0 se apenas um dos multiplicandos for negativo
+	beq $t9, 3, XYPOS
+	beq $t9, 0, XYPOS
+	mflo $s0
+	mfhi $s1
+	nor $s1, $s1, $s1	#inverte o MSB para ele ficar negativo 
+	nor $s0, $s0, $s0
+	nor $v1, $v1, $v1
+	bnez $v0, MOV3
+	addiu $v1, $v1, 1
+MOV3:	nor $v0, $v0, $v0
+	addi $v0, $v0, 1
+	mtlo $s0
+	mthi $s1
+XYPOS:
+	
 	lw $s0, 0($sp)		#recupera os $s
 	lw $s1, 4($sp)
 	lw $s2, 8($sp)
 	lw $s5, 12($sp)
-	addi $sp, $sp, 16
+	lw $ra, 16($sp)
+	addi $sp, $sp, 20
 	
-	jr $t9			#volta
+	jr $ra	
 
 
 #s0 = arg1 | s1 = arg2 | s3 = soma | s5 = flag de overflow sendo 0 = no overflow ; 1 = overflow
