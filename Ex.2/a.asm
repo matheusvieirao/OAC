@@ -118,23 +118,26 @@ NOOVFL5:move $s0, $t8
 NOOVFL6:addu $t7, $t7, $t0
 	mthi $t7
 	
-	#inverte hilov1v0 se apenas um dos multiplicandos for negativo
-	beq $t9, 3, XYPOS
-	beq $t9, 0, XYPOS
+	beq $t9, 3, XYPOS	#se os dois forem negativos nao precisa negativar o resultado
+	beq $t9, 0, XYPOS	#se os dois forem positivos nao precisa negativar o resultado
 	mflo $s0
 	mfhi $s1
-	nor $s1, $s1, $s1	#inverte o MSB para ele ficar negativo 
+	bnez $v0, NOVF		#nao ocorrera overflow no complemento de 2
+	bnez $v1, V0OVF		#ocorrera overflow de v0 para v1
+	bnez $s0, V1OVF		#ocorrera overflow de v1 para lo
+V0OVF:	addi $v1, $v1, 1
+	j NOVF
+V1OVF:	addi $s0, $s0, 1
+	j NOVF
+NOVF: 	nor $s1, $s1, $s1	
 	nor $s0, $s0, $s0
 	nor $v1, $v1, $v1
-	bnez $v0, MOV3
-	addiu $v1, $v1, 1
-MOV3:	nor $v0, $v0, $v0
+	nor $v0, $v0, $v0
 	addi $v0, $v0, 1
 	mtlo $s0
 	mthi $s1
-XYPOS:
 	
-	lw $s0, 0($sp)		#recupera os $s
+XYPOS:	lw $s0, 0($sp)		#recupera os $s
 	lw $s1, 4($sp)
 	lw $s2, 8($sp)
 	lw $s5, 12($sp)
@@ -143,13 +146,12 @@ XYPOS:
 	
 	jr $ra	
 
-
 #s0 = arg1 | s1 = arg2 | s3 = soma | s5 = flag de overflow sendo 0 = no overflow ; 1 = overflow
 ADDOVF:addu $s3, $s0, $s1	
 	nor $s5, $s0, $zero	
 	sltu $s5, $s5, $s1	# 0 = no overflow ; 1 = overflow
 	jr $ra
-			
+
  	
 # floor(x/y)={Hi,LO} e (x%y)={$v1,$v0}
 #Numerador: a1a0 | Numerador Positivo s1s0 | Denominador: a3a2 | Denominador positivo s3s2 | Quociente: s5s4 | Resto: s7s6
